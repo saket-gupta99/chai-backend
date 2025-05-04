@@ -1,21 +1,22 @@
 import { v2 as cloudinary } from "cloudinary";
 import fs from "fs";
+import { config } from "../utils/configs.js";
 
-console.log( process.env.CLOUDINARY_NAME, process.env.CLOUDINARY_API_KEY, process.env.CLOUDINARY_API_SECRET)
 cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
+  cloud_name: config.cloudinary.name,
+  api_key: config.cloudinary.apiKey,
+  api_secret: config.cloudinary.apiSecret,
 });
 
-export async function uploadOnCloudinary(localFilePath) {
+async function uploadOnCloudinary(localFilePath) {
   try {
     if (!localFilePath) return null;
     //upload the file on cloudinary
     const response = await cloudinary.uploader.upload(localFilePath, {
       resource_type: "auto",
     });
-    console.log("file is uploaded on cloudinary", response.url);
+    // console.log("file is uploaded on cloudinary", response.url);
+    fs.unlinkSync(localFilePath);
 
     return response;
   } catch (err) {
@@ -24,3 +25,16 @@ export async function uploadOnCloudinary(localFilePath) {
     return null;
   }
 }
+
+export async function deleteFromCloudinary(publicId) {
+  if (!publicId) return;
+  try {
+    await cloudinary.uploader.destroy(publicId);
+    // console.log("Previous avatar/coverImage deleted");
+  } catch (error) {
+    console.error("Failed to delete old avatar/coverImage:", error);
+  }
+}
+
+
+export { uploadOnCloudinary };

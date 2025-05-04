@@ -2,6 +2,7 @@ import { Schema, model } from "mongoose";
 import validator from "validator";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { config } from "../utils/configs.js";
 
 const userSchema = new Schema(
   {
@@ -36,7 +37,14 @@ const userSchema = new Schema(
       type: String,
       required: true,
     },
+    avatarPublicId: {
+      type: String,
+      required: true,
+    },
     coverImage: {
+      type: String,
+    },
+    coverImagePublicId: {
       type: String,
     },
     password: {
@@ -74,9 +82,9 @@ userSchema.methods.generateAccessToken = function () {
       email: this.email,
       fullName: this.fullName,
     },
-    process.env.ACCESS_TOKEN_SECRET,
+    config.tokens.accessTokenSecret,
     {
-      expiresIn: process.env.ACCESS_TOKEN_EXPIRY,
+      expiresIn: config.tokens.accessTokenExpiry,
     }
   );
 };
@@ -86,9 +94,9 @@ userSchema.methods.generateRefreshToken = function () {
     {
       _id: this._id,
     },
-    process.env.REFRESH_TOKEN_SECRET,
+    config.tokens.refreshTokenSecret,
     {
-      expiresIn: process.env.REFRESH_TOKEN_EXPIRY,
+      expiresIn: config.tokens.refreshTokenExpiry,
     }
   );
 };
